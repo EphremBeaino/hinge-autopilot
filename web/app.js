@@ -19,7 +19,7 @@ function toast(msg, err) {
 }
 async function act(fn, ok) { try { const r = await fn(); if (ok) toast(ok); return r; } catch (e) { toast(e.message, true); } }
 const priv = () => S.state?.settings?.privacy;
-const rd = (t, n) => { t = t ?? ''; if (!priv() || !n || n.length < 2 || n === 'unknown') return t; return String(t).replace(new RegExp('\\b' + n.replace(/[^\w]/g, '') + '\\b', 'gi'), n[0].toUpperCase() + '.'); };
+const rd = (t, n) => { t = t ?? ''; if (!priv() || !n || n.length < 2 || n === 'unknown') return t; return String(t).replace(new RegExp('\\b' + n.replace(/[^\w]/g, '') + '\\b\\.?', 'gi'), n[0].toUpperCase() + '.'); };
 const e2 = (t, n) => esc(rd(t, n));
 const nm = n => { n = (n || 'unknown'); n = n[0].toUpperCase() + n.slice(1); return priv() ? n[0] + '.' : n; };
 const frame = (folder, i = 0, w = 360) => `/api/frame?folder=${encodeURIComponent(folder)}&i=${i}&w=${w}&p=${priv() ? 1 : 0}`;
@@ -31,7 +31,8 @@ const statusPill = s => s ? `<span class="pill ${s.replace(' ', '')}">${{ pendin
 /* ------------------------------------------------------------------ routing */
 const PAGES = { run: pageRun, profiles: pageProfiles, chats: pageChats, insights: pageInsights, schedule: pageSchedule, setup: () => openWizard(0, true) };
 function go() {
-  const page = (location.hash || '#run').slice(1);
+  const [page, arg] = (location.hash || '#run').slice(1).split('&open=');
+  S.open = arg ? decodeURIComponent(arg) : null;
   if (page === 'setup') { openWizard(0, true); history.replaceState(null, '', '#' + (S.page || 'run')); return; }
   S.timers.forEach(clearInterval); S.timers = [];
   S.page = page;
@@ -123,6 +124,7 @@ async function pageProfiles() {
   $('#more').onclick = () => { PF.shown += 60; renderTiles(); };
   const { records } = await api('profiles'); S.profiles = records.filter(r => r.folder);
   renderTiles();
+  if (S.open) openProfile(S.profiles.find(r => r.seq == S.open));
 }
 const RANK = { date: 5, replied: 4, matched: 3, pending: 1, 'no match': 0, unmatched: 0 };
 function profileList() {
@@ -202,6 +204,7 @@ async function pageChats() {
     const c = st.chats;
     $('#chatSub').textContent = c.state === 'reading' ? `Reading: ${c.progress || '…'}` : c.finishedAt ? `${c.count} chats · read ${when(c.finishedAt)}${st.suggest.current ? ' · drafting a reply…' : ''}` : 'Not read yet. Press Read new chats.';
     S.chats = (await api('chats')).chats || [];
+    if (S.open) { CH.key = (S.chats.find(c => c.key === S.open || c.name === S.open) || {}).key; S.open = null; }
     renderChatList();
   };
   load(); S.timers.push(setInterval(load, 8000));

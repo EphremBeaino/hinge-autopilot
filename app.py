@@ -233,11 +233,16 @@ def blur_photos(im, header: bool = False):
         y0, y1 = max(0, y0 - 6), min(h, y1 + 6)
         box = (0, y0, w, y1)
         out.paste(im.crop(box).filter(ImageFilter.GaussianBlur(radius=max(18, w // 30))), box)
+    soft = ImageFilter.GaussianBlur(radius=max(14, w // 45))
     if header:
-        # the first screen of a profile: name and badges sit between the filter chips and the first photo
-        first = runs[0][0] if runs and runs[0][0] < h * 0.4 else int(h * 0.26)
-        box = (0, int(h * 0.075), w, max(int(h * 0.075) + 1, first))
-        out.paste(im.crop(box).filter(ImageFilter.GaussianBlur(radius=max(14, w // 45))), box)
+        # the first screen of a profile: the name sits between the filter chips and the first big photo
+        # (a thin promo banner above the name can look like a photo, so only count runs below 20%)
+        first = next((y0 for y0, _ in runs if h * 0.2 < y0 < h * 0.45), int(h * 0.3))
+        box = (0, int(h * 0.075), w, first)
+    else:
+        # later screens: Hinge pins a bar with the name under the status bar
+        box = (0, int(h * 0.035), w, int(h * 0.1))
+    out.paste(out.crop(box).filter(soft), box)
     return out
 
 
