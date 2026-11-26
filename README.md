@@ -84,6 +84,13 @@ outside calls go to the AI provider you pick, and to Google once to download `ad
 Automating Hinge is against its terms of service and can get your account banned. The bot never
 sends chat messages for you; it only drafts them. Use it at your own risk.
 
+## Credits
+
+Phone control is based on [hinge-auto](https://github.com/LeoSaucedo/hinge-auto) by TerraByte-Dev and
+Carlos Saucedo: driving the phone over adb, finding the like buttons, and the core swipe loop. This
+project adds the comment engine, the chat reader and coach, outcome tracking, insights, taste training,
+scheduling, multi-provider AI and the web app.
+
 ## License
 
-MIT. Built on top of an earlier open-source Hinge automation project; see [LICENSE](LICENSE).
+MIT, like the project it builds on. See [LICENSE](LICENSE).
