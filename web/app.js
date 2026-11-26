@@ -95,7 +95,7 @@ async function pageRun() {
     const { records } = await api('profiles'); S.profiles = records;
     const el = $('#latest'); if (!el) return;
     const last = records.filter(r => r.folder).slice(-6).reverse();
-    el.innerHTML = last.map(r => `<div class="mini" data-seq="${r.seq}"><img src="${frame(r.folder, 0, 120)}" loading="lazy"><div class="t"><div class="row" style="gap:8px"><b>${esc(nm(r.name))}</b>${r.decision === 'like' ? '<span class="pill like">♥ liked</span>' : '<span class="pill skip">skipped</span>'}${r.score != null ? `<span class="pill">${r.score}</span>` : ''}</div><div class="c">${e2(r.message || r.rationale || '', r.name)}</div></div></div>`).join('') || '<div class="empty">No profiles yet. Press Start.</div>';
+    el.innerHTML = last.map(r => `<div class="mini" data-seq="${r.seq}"><img src="${frame(r.folder, 0, 120)}" loading="lazy"><div class="t"><div class="row" style="gap:8px"><b>${esc(nm(r.name))}</b>${r.decision === 'like' ? '<span class="pill like">♥ liked</span>' : '<span class="pill skip">skipped</span>'}${r.score != null ? `<span class="pill">${r.score}</span>` : ''}</div><div class="c">${e2(r.message || (priv() ? '' : r.rationale) || '', r.name)}</div></div></div>`).join('') || '<div class="empty">No profiles yet. Press Start.</div>';
     el.querySelectorAll('.mini').forEach(m => m.onclick = () => openProfile(records.find(r => r.seq == m.dataset.seq)));
   };
   tickRun(); tickScreen(); loadLatest();
@@ -149,8 +149,8 @@ function renderTiles() {
       <div class="img"><img src="${frame(r.folder, 0, 320)}" loading="lazy">
         <div class="badge">${r.decision === 'like' ? (r.status && r.status !== 'pending' ? statusPill(r.status) : '<span class="pill like">♥ liked</span>') : '<span class="pill skip">skipped</span>'}</div>
         ${r.score != null ? `<div class="score">${r.score > 0 ? '+' : ''}${r.score}</div>` : ''}</div>
-      <div class="body"><div class="nm"><span class="pname">${esc(nm(r.name))}${r.age ? `, ${r.age}` : ''}</span>${r.machine && r.machine !== 'none' && r.decision === 'like' ? `<span class="pill strategy">${STRATEGY[r.machine]}</span>` : ''}</div>
-        <div class="msg">${r.decision === 'like' ? (r.message ? '“' + e2(r.message, r.name) + '”' : '') : e2((r.rationale || '').slice(0, 140), r.name)}</div></div>
+      <div class="body"><div class="nm"><span class="pname">${esc(nm(r.name))}${r.age && !priv() ? `, ${r.age}` : ''}</span>${r.machine && r.machine !== 'none' && r.decision === 'like' ? `<span class="pill strategy">${STRATEGY[r.machine]}</span>` : ''}</div>
+        <div class="msg">${r.decision === 'like' ? (r.message ? '“' + e2(r.message, r.name) + '”' : '') : priv() ? '' : e2((r.rationale || '').slice(0, 140), r.name)}</div></div>
     </div>`).join('') || '<div class="empty">Nothing here yet.</div>';
   document.querySelectorAll('.tile').forEach(t => t.onclick = () => openProfile(S.profiles.find(r => r.seq == t.dataset.seq)));
 }
@@ -162,12 +162,12 @@ function openProfile(r) {
   $('#modal').innerHTML = `<div class="modal-bg"><button class="close">✕</button><div class="modal">
     <div class="frames">${Array.from({ length: r.frames }, (_, i) => `<img src="${frame(r.folder, i, 400)}" loading="lazy">`).join('')}</div>
     <div class="info">
-      <div class="row"><h1 style="margin:0" class="pname">${esc(nm(r.name))}${r.age ? `, ${r.age}` : ''}</h1>
+      <div class="row"><h1 style="margin:0" class="pname">${esc(nm(r.name))}${r.age && !priv() ? `, ${r.age}` : ''}</h1>
         ${r.decision === 'like' ? '<span class="pill like">♥ liked</span>' : '<span class="pill skip">skipped</span>'}${statusPill(r.status)}
-        ${r.score != null ? `<span class="pill">score ${r.score > 0 ? '+' : ''}${r.score}</span>` : ''}${r.looks ? `<span class="pill">looks ${r.looks}/5</span>` : ''}</div>
+        ${r.score != null ? `<span class="pill">score ${r.score > 0 ? '+' : ''}${r.score}</span>` : ''}${r.looks && !priv() ? `<span class="pill">looks ${r.looks}/5</span>` : ''}</div>
       <div class="hint" style="margin-top:6px">${when(r.at)}${r.model ? ' · ' + esc(r.model) : ''}${r.cost ? ` · $${r.cost.toFixed(3)}` : ''}${r.dryRun ? ' · dry run' : ''}</div>
       <div class="flow">
-        <div class="step"><div class="n">1</div><div class="h">What the AI saw</div><div class="b">${e2(r.rationale, r.name)}</div></div>
+        <div class="step"><div class="n">1</div><div class="h">${priv() ? 'The verdict' : 'What the AI saw'}</div><div class="b">${priv() ? `${r.decision === 'like' ? 'Passed' : 'Below'} the minimum score with ${r.score > 0 ? '+' : ''}${r.score ?? '?'} (details hidden in privacy mode)` : e2(r.rationale, r.name)}</div></div>
         ${r.decision === 'like' ? `
         <div class="step"><div class="n">2</div><div class="h">The hook it picked</div><div class="b">${r.target ? `<div class="quote">${e2(r.target, r.name)}</div>` : ''}<div style="margin-top:8px">${e2(r.hook, r.name)}</div>
           ${r.machine && r.machine !== 'none' ? `<div style="margin-top:8px"><span class="pill strategy">${STRATEGY[r.machine]}</span> <span class="hint">${STRATEGY_HELP[r.machine] || ''}${r.variation ? ' · ' + e2(r.variation, r.name) : ''}</span></div>` : ''}</div></div>
@@ -175,7 +175,7 @@ function openProfile(r) {
         <div class="step"><div class="n">${cands ? 4 : 3}</div><div class="h">Sent${r.likedOn ? ` (liked their ${esc(r.likedOn)})` : ''}</div><div class="bubbles"><div class="bub like">${e2(r.message, r.name)}</div></div></div>
         <div class="step"><div class="n">${cands ? 5 : 4}</div><div class="h">What happened</div><div class="b">${o?.firstMessage ? `<div class="bubbles"><div class="bub them">${e2(o.firstMessage, r.name)}</div></div>` : (statusPill(r.status) || 'Nothing yet')}${o?.note ? `<div class="hint" style="margin-top:6px">Your note: ${e2(o.note, r.name)}</div>` : ''}</div></div>` : ''}
       </div>
-      ${r.flags ? `<div class="hint">Notes: ${e2(r.flags, r.name)}</div>` : ''}
+      ${r.flags && !priv() ? `<div class="hint">Notes: ${e2(r.flags, r.name)}</div>` : ''}
       <div class="card" style="margin-top:18px">
         <h3>Teach it your taste</h3>
         <div class="row" id="rate">${['no', 'maybe', 'yes', 'hot'].map(x => `<button data-r="${x}" class="${r.rating === x ? 'primary' : ''}">${{ no: '👎 No', maybe: '🤔 Maybe', yes: '👍 Yes', hot: '🔥 Hot' }[x]}</button>`).join('')}</div>

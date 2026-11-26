@@ -6,6 +6,11 @@ chats, drafts your next message, and shows you which strategies actually get mat
 
 Everything runs on your computer. You bring the AI key (Claude, OpenAI or Gemini).
 
+![Her prompt, the hook the AI picked, three drafts with why two died, what was sent, and her reply](docs/comment-wonderland.jpg)
+
+<sub>Real results from the author's own account. Screenshots are taken in the app's privacy mode: photos,
+names and the AI's notes are blurred or hidden.</sub>
+
 ## How a comment gets written
 
 For every profile it:
@@ -24,6 +29,8 @@ For every profile it:
 Every decision is logged with the drafts and the reason each one died, so you can see exactly how a
 comment came to be.
 
+![A blueprint comment on a "give me your honest opinion" prompt, and her reply](docs/comment-qr-menus.jpg)
+
 ## What's in the app
 
 | Page | What it does |
@@ -36,6 +43,18 @@ comment came to be.
 | **Schedule** | Swipes every day at a slightly different time, reads chats after each run, dry run, privacy mode |
 
 **Privacy mode** blurs photos and names everywhere in the app, so you can take screenshots.
+
+### Insights: which strategy gets matches
+
+![Match and reply rate by comment strategy, funnel and double texting stats](docs/insights.jpg)
+
+### Chats: the next move, drafted
+
+![A chat thread, how the bot opened it, and the coach's read and next move](docs/chats.jpg)
+
+### Setup: a few questions about you
+
+![The setup steps: phone tools, phone, AI key, about you, your type, your voice](docs/setup.jpg)
 
 ## Get started
 
