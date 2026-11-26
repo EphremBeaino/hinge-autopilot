@@ -1,0 +1,11 @@
+# your data: profiles, chats, keys (never commit)
+data/
+data-*/
+# downloaded Android platform tools
+tools/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
