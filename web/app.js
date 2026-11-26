@@ -408,7 +408,7 @@ const PROVIDERS = [['anthropic', 'Claude (Anthropic)', 'Best comments and judgem
 function wizAi(st) {
   const p = W.ai.provider;
   const same = st.ai.provider === p;
-  return `<h1>Pick the AI brain</h1><div class="sub">It looks at each profile's screenshots, decides, and writes the comment. You pay the provider directly; a profile costs about $0.01-0.05.</div>
+  return `<h1>Pick the AI brain</h1><div class="sub">It looks at each profile's screenshots, decides, and writes the comment. You pay the provider directly; a profile costs about $0.01 (Gemini) to $0.30 (Claude Opus).</div>
   <div class="card"><div class="choices" id="prov">${PROVIDERS.map(([k, t, d]) => `<div class="choice ${p === k ? 'on' : ''}" data-p="${k}"><b>${t}</b><span>${d}</span></div>`).join('')}</div>
     ${p !== 'claude_code' ? `<label>API key ${same && st.ai.keyHint ? `(saved: ${esc(st.ai.keyHint)})` : ''}</label><input id="aiKey" type="password" placeholder="${same && st.ai.keyHint ? 'Leave empty to keep the saved key' : 'Paste your key'}" autocomplete="off">` : ''}
     <label>Model</label><input id="aiModel" value="${esc(same ? st.ai.model : st.defaults[p])}">
